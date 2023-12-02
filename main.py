@@ -1,0 +1,99 @@
+import pandas as pd
+from flask import Flask, request, jsonify
+from langchain_experimental.agents.agent_toolkits import create_pandas_dataframe_agent
+from langchain.llms import OpenAI
+
+
+# Initialize Flask app
+app = Flask(__name__)
+
+# Load sales data
+df = pd.read_csv("sales_performance_data.csv")
+
+# Initialize Langchain agent
+openai_api_key = "KEY-HERE"
+openai = OpenAI(temperature=0.0, openai_api_key=openai_api_key)
+agent = create_pandas_dataframe_agent(openai, df, verbose=True, max_tokens=50)
+data_cleaning_prompt_list = [
+    "convert the created into datetime data type",
+    "Create new columns for day, month and year using the created date",
+    "Remove all rows with empty data.",
+    
+]
+
+for prompt in data_cleaning_prompt_list:
+    agent.run(prompt)
+
+
+def get_insights_for_representative(rep_id):
+    results = []
+    
+    prompt_list = [
+
+        "Total number of tours booked by employee {id} compared to overall team, output value by employee and overall team, percentage thereof.",
+        "Total number of leads taken by employee {id} compared to overall team, output value by employee and overall team and percentage thereof.",
+        "Average number of tours booked per lead by employee {id} compared to overall team, output value by employee and overall team.",
+        "Average number of applications submitted per booked tour by employee {id} compared to overall team, output value by employee and overall team.",
+        "Average number of applications submitted per lead by employee {id} compared to overall team, output value by employee and overall team.",
+        "Total revenue confirmed by employee {id} compared to overall team, output value by employee and overall team and percentage thereof.",
+        "Total revenue pending by employee {id} compared to overall team, output value by employee and overall team and percentage thereof.",
+        "Number of tours(scheduled but not yet completed) by employee {id} compared to overall team, output value by employee and overall team and percentage thereof.",
+        "Average value of deals closed by employee {id} compared to overall team, output value by employee and overall team.",
+        "Percentage of tours booked that result in confirmed revenue by employee {id} compared to overall team, output value by employee and overall team and percentage thereof.",
+
+    ]
+    
+
+    for prompt in prompt_list:
+        results.append(agent.run(prompt))
+
+    return results
+
+
+def get_insights_for_team():
+    results = []
+    
+    prompt_list = [
+        "What is the total number of leads taken? What is the average number of leads taken daily (by grouping on dated)?",
+        "Give me the total number of tours booked and the average number of tours booked daily (by grouping on date)",
+        "What is the total number of applications (apps) per tour? What is the total number of applications (apps) per lead? Are more applications (apps) generated through tours or through leads?",
+        "What is the average revenue confirmed, revenue pending and revenue runrate daily (by grouping on date)?",
+        "Which employee has the highest revenue runrate and what is it?",
+        "How many tours are in the pipeline daily (grouped by date)?",
+        "Who has the highest average deal value for 30 days?",
+        "Which employee has the highest average deal value for 30 days and what is it?",
+        "What is the ratio of tours cancelled to tours scheduled?",
+        "How frequently are sales texts done over sales calls?"
+    ]
+    
+    for prompt in prompt_list:
+        results.append(agent.run(prompt))
+        
+    return results
+
+
+def get_insights_periodically(time_period):
+    results = []
+    
+    #CODE HERE
+    
+    return results
+
+# Define Flask endpoints
+@app.route('/rep_performance/<int:rep_id>', methods=['GET'])
+def get_rep_performance(rep_id):
+    result = get_insights_for_representative(rep_id)
+    return jsonify(result)
+
+@app.route('/team_performance', methods=['GET'])
+def get_team_performance():
+    result = get_insights_for_team()
+    return jsonify(result)
+
+@app.route('/performance_trends/<str:time_period>', methods=['GET'])
+def get_performance_trends(time_period):
+    result = get_insights_periodically(time_period)
+    return jsonify(result)
+
+if __name__ == '__main__':
+    app.run(debug=True)
