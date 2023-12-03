@@ -88,6 +88,7 @@ def get_insights_periodically(time_period):
     "Generate an analysis of the average number of applications submitted per lead over {time_period} time period for the entire sales team. Identify trends and insights into overall application efficiency.",
     "Generate an analysis of total confirmed revenue, pending revenue, and revenue runrate over {time_period} time period for the entire sales team. Identify trends and insights into revenue generation.",
     "Generate an analysis of the number of tours in the pipeline, average deal value, and average close rate over {time_period} time period for the entire sales team. Identify trends and insights into deal progression.",
+    "Generate an analysis of estimated revenue, overall trends, and future forecasting based on the current performance of the entire sales team in {time_period} time period."
     ]
     
     results = ' '.join([agent.run(prompt.format(time_period=time_period)) for prompt in prompt_list])
