@@ -5,6 +5,7 @@
 In order to run the code you must have a python environment >=3.9 and make sure pandas, langchain, openai, langchain-experimental and flask are installed use:
 ```pip install pandas langchain openai langchain-experimental flask```
 and run the file main.py using ```python main.py```
+Make sure to replace the variable __openai_api_key__ from __"KEY-HERE"__ to your OpenAI key
 
 ## Code architecture and technologies used:
 
