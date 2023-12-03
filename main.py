@@ -11,7 +11,7 @@ app = Flask(__name__)
 df = pd.read_csv("sales_performance_data.csv")
 
 # Initialize Langchain agent
-openai_api_key = "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"
+openai_api_key = "KEY-HERE"
 openai = OpenAI(temperature=0.0, openai_api_key=openai_api_key)
 agent = create_pandas_dataframe_agent(openai, df, verbose=True, max_tokens=50)
 
