@@ -28,6 +28,9 @@ for prompt in data_cleaning_prompt_list:
 def get_insights_for_representative(rep_id):
     results = []
     
+    if rep_id not in df['employee_id'].values:
+        return "Employee with id {id} was not found in the csv".format(id=rep_id)
+    
     prompt_list = [
 
         "Total number of tours booked by employee {id} compared to overall team, output value by employee and overall team, percentage thereof.",
@@ -45,7 +48,7 @@ def get_insights_for_representative(rep_id):
     
 
     for prompt in prompt_list:
-        results.append(agent.run(prompt))
+        results.append(agent.run(prompt.format(id=rep_id)))
 
     return results
 
@@ -90,7 +93,7 @@ def get_team_performance():
     result = get_insights_for_team()
     return jsonify(result)
 
-@app.route('/performance_trends/<str:time_period>', methods=['GET'])
+@app.route('/performance_trends/<time_period>', methods=['GET'])
 def get_performance_trends(time_period):
     result = get_insights_periodically(time_period)
     return jsonify(result)
